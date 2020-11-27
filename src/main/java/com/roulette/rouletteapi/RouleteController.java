@@ -17,11 +17,12 @@ import com.roulette.dto.BetResponse;
 import com.roulette.dto.BetValidation;
 import com.roulette.dto.ClosedRoulette;
 import com.roulette.dto.Roulette;
+import com.roulette.dto.RouletteToList;
 
 @RestController
 @RequestMapping("/api/*")
 public class RouleteController {
-
+	
 	@Autowired
 	private RouletteValidator rouletteValidator;
 	
@@ -65,14 +66,15 @@ public class RouleteController {
 	}
 	
 	@PostMapping("/closeRoulette")
-	public ClosedRoulette closeRoulette(Integer roulletteId) {
+	public ClosedRoulette closeRoulette(@RequestBody Integer roulletteId) {
 		roulette.setId(roulletteId);
 		return roulette.closeRoulette();
 	}
 	
 	@GetMapping("/listRoulettes")
-	public ArrayList<Roulette> listRoulettes() {
-		return new ArrayList<Roulette>();
+	public ArrayList<RouletteToList> listRoulettes() throws CloneNotSupportedException {
+		return roulette.listRoulettes();
+		//return roulettelist.getAllRoulettes();
 	}
 	
 }

@@ -22,6 +22,9 @@ public class Bet {
 		this.result = result;
 		this.prize = prize;
 	}
+	public Bet() {
+		super();
+	}
 	public Integer getId() {
 		return id;
 	}
@@ -69,11 +72,13 @@ public class Bet {
 		if (this.number != null && this.number.equals(chosenNumber)) {
 			this.result = "Won!";
 			this.prize = this.value * 5;
+			return;
 		} else if (this.color != null) {
 			String chosenColor = (chosenNumber % 2 == 0) ? "Red" : "Black";
 			if (this.color.equals(chosenColor)) {
 				this.result = "Won!";
 				this.prize = this.value * 1.8;
+				return;
 			}
 		}
 		this.result = "Lost!";

@@ -14,6 +14,9 @@ public class BetResponse {
 		this.errorCode = errorCode;
 		this.betId = betId;
 	}
+	public BetResponse() {
+		super();
+	}
 	public Boolean getSuccess() {
 		return success;
 	}

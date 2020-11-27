@@ -14,13 +14,16 @@ public class RouletteValidator {
 			return new BetValidation(false, "401");
 		if(bet.getRouletteId() == null)
 			return new BetValidation(false, "402");
-		if(bet.getNumber() > 36 || bet.getNumber() < 0)
+		if(bet.getNumber() != null && (bet.getNumber() > 36 || bet.getNumber() < 0))
 			return new BetValidation(false, "403");
-		if(!bet.getColor().equals("Black") && !bet.getColor().equals("Red"))
+		if(bet.getColor() != null && 
+				(!bet.getColor().equals("Black") && !bet.getColor().equals("Red")))
 			return new BetValidation(false, "404");
-		if(!(bet.getValue().compareTo(0.0) <= 0) 
-				|| !(bet.getValue().compareTo(10000.0) > 0))
-			return new BetValidation(false, "404");	
+		if(bet.getColor() != null && bet.getNumber() != null)
+			return new BetValidation(false, "405");
+		if(bet.getValue() == null 
+				|| (bet.getValue().compareTo(0.0) <= 0) || (bet.getValue().compareTo(10000.0) > 0))
+			return new BetValidation(false, "406");	
 		/*if(!(bet.getValue().compareTo(Double.valueOf("0")) <= 0) 
 				|| !(bet.getValue().compareTo(Double.valueOf("10000")) > 0))
 			return new BetValidation(false, "404");	*/
