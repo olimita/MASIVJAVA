@@ -54,12 +54,6 @@ public class RouleteController {
 			bet.setColor(roulletteBet.getColor());
 			bet.setValue(roulletteBet.getValue());
 			return roulette.setNewBet(bet);
-			/*
-			if (roulette.setNewBet(bet))
-				return new BetResponse(validatedBet.getValid(), validatedBet.getErrorCode(), bet.getId());
-			else
-				return new BetResponse(false, validatedBet.getErrorCode(), bet.getId());
-			*/
 		}
 		else
 			return new BetResponse(validatedBet.getValid(), validatedBet.getErrorCode(), null);
@@ -74,7 +68,6 @@ public class RouleteController {
 	@GetMapping("/listRoulettes")
 	public ArrayList<RouletteToList> listRoulettes() throws CloneNotSupportedException {
 		return roulette.listRoulettes();
-		//return roulettelist.getAllRoulettes();
 	}
 	
 }

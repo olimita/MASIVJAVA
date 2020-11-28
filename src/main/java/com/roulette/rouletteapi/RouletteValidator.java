@@ -1,5 +1,6 @@
 package com.roulette.rouletteapi;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.roulette.dto.BetRequest;
@@ -7,6 +8,9 @@ import com.roulette.dto.BetValidation;
 
 @Component
 public class RouletteValidator {
+	
+	@Autowired
+	private Configuration config;
 	
 	public BetValidation validateBet(Integer user, BetRequest bet){
 		
@@ -22,11 +26,8 @@ public class RouletteValidator {
 		if(bet.getColor() != null && bet.getNumber() != null)
 			return new BetValidation(false, "405");
 		if(bet.getValue() == null 
-				|| (bet.getValue().compareTo(0.0) <= 0) || (bet.getValue().compareTo(10000.0) > 0))
+				|| (bet.getValue().compareTo(config.getBetMinimum()) <= 0) || (bet.getValue().compareTo(config.getBetMaximum()) > 0))
 			return new BetValidation(false, "406");	
-		/*if(!(bet.getValue().compareTo(Double.valueOf("0")) <= 0) 
-				|| !(bet.getValue().compareTo(Double.valueOf("10000")) > 0))
-			return new BetValidation(false, "404");	*/
 		return new BetValidation(true, "200");
 	}
 }
