@@ -1,7 +1,6 @@
 package com.roulette.rouletteapi;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +18,10 @@ import com.roulette.dto.CreateRouletteResponse;
 import com.roulette.dto.ListRoulettesResponse;
 import com.roulette.dto.OpenRouletteResponse;
 import com.roulette.dto.Roulette;
-import com.roulette.dto.RouletteToList;
 
 @RestController
 @RequestMapping("/api/*")
-public class RouleteController {
+public class RouletteController {
 	
 	@Autowired
 	private RouletteValidator rouletteValidator;
@@ -47,7 +45,6 @@ public class RouleteController {
 	
 	@PostMapping("/setBet")
 	public BetResponse setBetOnRoullette(@RequestHeader("user") Integer user, @RequestBody BetRequest roulletteBet) {
-		
 		BetResponse validatedBet = rouletteValidator.validateBet(user, roulletteBet);
 		if(validatedBet.getSuccess()) {
 			roulette.setId(roulletteBet.getRouletteId());
