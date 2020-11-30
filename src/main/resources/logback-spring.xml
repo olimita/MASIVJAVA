@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	
-	<springProperty scope="context" name="logLevel" source="myapp.fluentd.host"/>
+	<variable name="LOG_LEVEL" value="${LOG_LEVEL:-DEBUG}" />
+	<variable name="AMAZON_ACCESS_KEY" value="${AMAZON_ACCESS_KEY:-XD}" />
+	<variable name="AMAZON_SECRET_KEY" value="${AMAZON_SECRET_KEY:-XD}" />
 	<!-- Send debug messages to System.out -->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- By default, encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
@@ -14,19 +16,17 @@
 		<region>us-east-1</region>
 		<logGroup>roulette-api</logGroup>
 		<logStream>testing</logStream>
+		<accessKeyId>${AMAZON_ACCESS_KEY}</accessKeyId>
+		<secretKey>${AMAZON_SECRET_KEY}<</secretKey>
 		<layout>
 			<!-- possible layout pattern -->
 			<pattern>[%X{a} %X{b}] %-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
 		</layout>
 	</appender>
 
-	<logger name="com.roulette.rouletteapi.beans" level="${logLevel}" additivity="false">
+	<root level="${LOG_LEVEL}">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="CLOUDWATCH" />
-	</logger>
-
-	<!-- By default, the level of the root level is set to DEBUG -->
-	<root level="DEBUG">
-		<appender-ref ref="STDOUT" />
 	</root>
+
 </configuration>
