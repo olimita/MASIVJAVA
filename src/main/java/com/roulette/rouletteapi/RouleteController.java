@@ -16,6 +16,9 @@ import com.roulette.dto.BetRequest;
 import com.roulette.dto.BetResponse;
 import com.roulette.dto.BetValidation;
 import com.roulette.dto.ClosedRoulette;
+import com.roulette.dto.CreateRouletteResponse;
+import com.roulette.dto.ListRoulettesResponse;
+import com.roulette.dto.OpenRouletteResponse;
 import com.roulette.dto.Roulette;
 import com.roulette.dto.RouletteToList;
 
@@ -33,12 +36,12 @@ public class RouleteController {
 	private Bet bet;
 	
 	@GetMapping("/createRoulette")
-	public Integer createRoulete() throws SQLException {		
+	public CreateRouletteResponse createRoulete() throws SQLException {		
 		return roulette.createRoulette();
 	}
 	
 	@PostMapping("/openRoulette")
-	public Boolean openRoulette(@RequestBody Integer roulletteId) {
+	public OpenRouletteResponse openRoulette(@RequestBody Integer roulletteId) {
 		roulette.setId(roulletteId);
 		return roulette.openRoulette();
 	}
@@ -46,8 +49,8 @@ public class RouleteController {
 	@PostMapping("/setBet")
 	public BetResponse setBetOnRoullette(@RequestHeader("user") Integer user, @RequestBody BetRequest roulletteBet) {
 		
-		BetValidation validatedBet = rouletteValidator.validateBet(user, roulletteBet);
-		if(validatedBet.getValid()) {
+		BetResponse validatedBet = rouletteValidator.validateBet(user, roulletteBet);
+		if(validatedBet.getSuccess()) {
 			roulette.setId(roulletteBet.getRouletteId());
 			bet.setUserId(user);
 			bet.setNumber(roulletteBet.getNumber());
@@ -56,7 +59,7 @@ public class RouleteController {
 			return roulette.setNewBet(bet);
 		}
 		else
-			return new BetResponse(validatedBet.getValid(), validatedBet.getErrorCode(), null);
+			return validatedBet;
 	}
 	
 	@PostMapping("/closeRoulette")
@@ -66,7 +69,7 @@ public class RouleteController {
 	}
 	
 	@GetMapping("/listRoulettes")
-	public ArrayList<RouletteToList> listRoulettes() throws CloneNotSupportedException {
+	public ListRoulettesResponse listRoulettes() throws CloneNotSupportedException {
 		return roulette.listRoulettes();
 	}
 	

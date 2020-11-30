@@ -9,14 +9,16 @@ public class ClosedRoulette {
 	
 	private Boolean success;
 	private String errorCode;
+	private String errorMesagge;
 	private Integer chosenNumber;
 	private String chosenColor;
 	private ArrayList<Bet> bets;
-	public ClosedRoulette(Boolean success, String errorCode, Integer chosenNumber, String chosenColor,
-			ArrayList<Bet> bets) {
+	public ClosedRoulette(Boolean success, String errorCode, String errorMesagge, Integer chosenNumber,
+			String chosenColor, ArrayList<Bet> bets) {
 		super();
 		this.success = success;
 		this.errorCode = errorCode;
+		this.errorMesagge = errorMesagge;
 		this.chosenNumber = chosenNumber;
 		this.chosenColor = chosenColor;
 		this.bets = bets;
@@ -41,6 +43,12 @@ public class ClosedRoulette {
 	}
 	public void setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
+	}
+	public String getErrorMesagge() {
+		return errorMesagge;
+	}
+	public void setErrorMesagge(String errorMesagge) {
+		this.errorMesagge = errorMesagge;
 	}
 	public Integer getChosenNumber() {
 		return chosenNumber;

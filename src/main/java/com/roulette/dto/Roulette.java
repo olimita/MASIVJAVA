@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.roulette.rouletteapi.DataBaseConnection;
 
 import redis.clients.jedis.Jedis;
@@ -66,14 +67,19 @@ public class Roulette {
 		this.bets = null;
 		this.result = null;
 	}
-	public Integer createRoulette() {
-		Jedis conn = DBConn.getDBConnection();
-		conn.incr("counterRoulette");
-		Integer id = Integer.valueOf(conn.get("counterRoulette"));
-		this.clear();
-		this.setId(id);
-		this.saveToDB();
-		return this.id;
+	public CreateRouletteResponse createRoulette() {
+		try {
+			Jedis conn = DBConn.getDBConnection();
+			conn.incr("counterRoulette");
+			Integer id = Integer.valueOf(conn.get("counterRoulette"));
+			this.clear();
+			this.setId(id);
+			this.saveToDB();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new CreateRouletteResponse("500", "Internal Server Error", null);
+		}
+		return new CreateRouletteResponse("200", "OK", this.id);
 	}
 	private void saveToDB() {
 		String stringToSave = new Gson().toJson(this);
@@ -92,39 +98,52 @@ public class Roulette {
 		this.result = aux.result;
 		return true;
 	}
-	public Boolean openRoulette() {
-		Jedis conn = DBConn.getDBConnection();
-		String rouletteAsJson = conn.get(this.id.toString());
-		Roulette aux = new Gson().fromJson(rouletteAsJson, Roulette.class);
-		if (aux.status == null || !aux.status.equals("open")) {
-			this.id = aux.id;
-			this.bets = aux.bets;
-			this.result = aux.result;
-			this.status = "open";
-			this.saveToDB();
-			return true;
+	public OpenRouletteResponse openRoulette() {
+		try {
+			Jedis conn = DBConn.getDBConnection();
+			String rouletteAsJson = conn.get(this.id.toString());
+			Roulette aux = new Gson().fromJson(rouletteAsJson, Roulette.class);
+			if (rouletteAsJson == null || rouletteAsJson.isBlank())
+				return new OpenRouletteResponse("407", "Roulette does not exists", false);
+			if (aux.status == null || !aux.status.equals("open")) {
+				this.id = aux.id;
+				this.bets = aux.bets;
+				this.result = aux.result;
+				this.status = "open";
+				this.saveToDB();
+				return new OpenRouletteResponse("200", "OK", true);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new OpenRouletteResponse("500", "Internal Server Error", false);
 		}
-		return false;
+		return new OpenRouletteResponse("409", "Roulette already open", true);
 	}
 	public BetResponse setNewBet(Bet newBet) {
-		if (!this.getFromDB())
-			return new BetResponse(false, "407",null);
-		if(this.status == null || !this.status.equals("open"))
-			return new BetResponse(false, "408",null);
-		Jedis conn = DBConn.getDBConnection();
-		conn.incr("counterBet");
-		Integer betId = Integer.valueOf(conn.get("counterBet"));
-		newBet.setId(betId);
-		if (this.bets == null)
-			this.bets = new ArrayList<Bet>();
-		this.bets.add(newBet);
-		this.saveToDB();
-		return new BetResponse(true, "200", betId);
+		try {
+			if (!this.getFromDB())
+				return new BetResponse(false, "407", "Roulette does not exists", null);
+			if(this.status == null || !this.status.equals("open"))
+				return new BetResponse(false, "408", "Roulette is not open", null);
+			Jedis conn = DBConn.getDBConnection();
+			conn.incr("counterBet");
+			Integer betId = Integer.valueOf(conn.get("counterBet"));
+			newBet.setId(betId);
+			if (this.bets == null)
+				this.bets = new ArrayList<Bet>();
+			this.bets.add(newBet);
+			this.saveToDB();
+			return new BetResponse(true, "200", "OK", betId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new BetResponse(false, "500", "Internal Server Error", null);
+		}
 	}
 	
 	public ClosedRoulette closeRoulette() {
 		if (!this.getFromDB())
-			return new ClosedRoulette(false, "407",null, null, null);
+			return new ClosedRoulette(false, "407", "Roulette does not exists",null, null, null);
 		if(this.status.equals("open")) {
 			Random rand = new Random();
 			this.result = rand.nextInt(37);
@@ -133,7 +152,7 @@ public class Roulette {
 			this.saveToDB();
 		}
 		String chosenColor = (this.result % 2 == 0) ? "Red" : "Black";
-		return new ClosedRoulette(true, "200", this.result, chosenColor, this.bets);
+		return new ClosedRoulette(true, "200", "OK", this.result, chosenColor, this.bets);
 	}
 	private void calculatePrizes() {
 		for (Iterator<Bet> it = this.bets.iterator(); it.hasNext();) {
@@ -141,22 +160,29 @@ public class Roulette {
 			bet.closeBet(this.result);
 		}
 	}
-	public ArrayList<RouletteToList> listRoulettes() throws CloneNotSupportedException {
-		Jedis conn = DBConn.getDBConnection();
-		Set<String> keys = conn.keys("*");
+	public ListRoulettesResponse listRoulettes() throws CloneNotSupportedException {
 		ArrayList<RouletteToList> roulettes = new ArrayList<RouletteToList>();
-		for (Iterator<String> it = keys.iterator(); it.hasNext();) {
-			String key = (String) it.next();
-			if (key.equals("counterRoulette") || key.equals("counterBet"))
-				continue;
-			this.setId(Integer.valueOf(key));
-			this.getFromDB();
-			presentableRoulette.setId(this.id);
-			presentableRoulette.setStatus(this.status);
-			presentableRoulette.setResult(this.result);
-			presentableRoulette.setBets(this.bets);
-			roulettes.add((RouletteToList) presentableRoulette.clone());
+		try {
+			Jedis conn = DBConn.getDBConnection();
+			Set<String> keys = conn.keys("*");
+			if (keys.size() == 0)
+				return new ListRoulettesResponse("201", "No roulettes were found", null);
+			for (Iterator<String> it = keys.iterator(); it.hasNext();) {
+				String key = (String) it.next();
+				if (key.equals("counterRoulette") || key.equals("counterBet"))
+					continue;
+				this.setId(Integer.valueOf(key));
+				this.getFromDB();
+				presentableRoulette.setId(this.id);
+				presentableRoulette.setStatus(this.status);
+				presentableRoulette.setResult(this.result);
+				presentableRoulette.setBets(this.bets);
+				roulettes.add((RouletteToList) presentableRoulette.clone());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ListRoulettesResponse("500", "Internal Server Error", null);
 		}
-		return roulettes;
+		return new ListRoulettesResponse("200", "OK", roulettes);
 	}
 }
