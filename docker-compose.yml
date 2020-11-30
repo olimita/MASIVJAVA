@@ -1,0 +1,25 @@
+version: "2.2"
+services:
+  roulette-api:
+    build: .
+    image: olimita/roulette-api
+    ports:
+      - "8080:8080"
+    env_file:
+     - ./.env
+    depends_on:
+      roulette-db:
+        condition: service_healthy
+    healthcheck:
+      test: "curl -I roulette-api:8080/roulette-api/api/listRoulettes --fail"
+      interval: 20s
+      retries: 10
+
+  roulette-db:
+    image: redis:5.0.10
+    ports:
+      - "6379:6379"
+    healthcheck: 
+      test: "redis-cli PING"
+      interval: 20s
+      retries: 10
