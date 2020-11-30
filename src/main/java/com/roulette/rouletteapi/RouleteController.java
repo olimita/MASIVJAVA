@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.roulette.dto.Bet;
 import com.roulette.dto.BetRequest;
 import com.roulette.dto.BetResponse;
-import com.roulette.dto.BetValidation;
 import com.roulette.dto.ClosedRoulette;
 import com.roulette.dto.CreateRouletteResponse;
 import com.roulette.dto.ListRoulettesResponse;

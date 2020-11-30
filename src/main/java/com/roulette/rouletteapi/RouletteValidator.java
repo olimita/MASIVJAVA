@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import com.roulette.dto.BetRequest;
 import com.roulette.dto.BetResponse;
-import com.roulette.dto.BetValidation;
 
 @Component
 public class RouletteValidator {
